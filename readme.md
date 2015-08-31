@@ -1,27 +1,160 @@
-## Laravel PHP Framework
+# php -> 5.5.9
+# composer
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+$ php -v
+$ php -m
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+2 php :
+    - php ligne de commande
+    - php pour apache
 
-## Official Documentation
+$ ls -al /usr/bin | grep php
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
 
-## Contributing
+# // changer le PATH du php :
+.bash_history -> export PATH="/Applications/MAMP/bin/php/php5.6.10/bin:$PATH"
+                        PATH=/Applications/MAMP/bin/php/php5.6.10/bin:$PATH
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
 
-## Security Vulnerabilities
+# // Installer 'composer' en ligne de commande (sur le site), puis :
+    $ mv composer.phar /usr/bin/composer
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+Applications    =>
+framework       => Vendors
 
-### License
+# ////////////////////////////////////////////////// INSTALL avec composer //////////////////////////////////////////////////
+    1) cd folder/
+    2) $ composer create-project laravel/laravel student
+    3) token (hidden) : suivre le liens
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Allumer le serveur :
+#    $ php artisan serve
+
+# ////////////////////////////////////////////////// Mecanisme MVC //////////////////////////////////////////////////
+Routing -> controllers (actions)    ->  Classes      -> html - moteur de template (blade)
+----------- controller ------------ | -- modeles -- | --------------- views -------------
+
+- ORM (object relation modele) -> 'Eloquant' (comme doctrine chez Symfony)
+- 1 table -> 1 objet (entity)
+
+
+# ////////////////////////////////////////////////// ROUTINGS //////////////////////////////////////////////////
+app -> Http -> routes.php
+
+    Route::get('/student/{id}', function ($id) {
+        return "Hello $id";
+    });
+
+
+# ////////////////////////////////////////////////// CONTROLLER //////////////////////////////////////////////////
+$ php artisan help make:controller
+$ php artisan make:controller
+$ php artisan make:controller StudentController --plain         -> creer un nouveau controller
+
+connecter une route sur notre controler :
+    - fichier controller :
+      public function showStudent($id) {
+          return "Hello $id";
+      }
+
+    - fichier route :
+    Route::get('/student/{id}', 'StudentController@showStudent');
+
+
+# ////////////////////////////////////////////////// VUE (TEMPLATE) //////////////////////////////////////////////////
+ressources/views/student.blade.php
+- {{$id}}
+
+
+
+# ////////////////////////////////////////////////// MODELES //////////////////////////////////////////////////
+
+# ////////// creer 1 bdd : //////////
+
+1) creer une bdd en ligne de commande :
+    - $ mysql -u root -p                (mdp: root)
+    - $ create database nom_base;
+
+--- OU ---
+
+1) creer une bdd via 'install.sh' (a placer a la racine) :
+
+$ sudo chmod +x install.sh
+$ ./install.sh
+$ sh install.sh
+
+
+# ////////// creer 1 table : //////////
+
+    |   connection bdd + affichage :
+#   |   $ mysql --user=pierre --password=pierre
+#   |   $ show databases;
+#   |   $ use name_bdd;
+#   |   $ show create table students;
+
+
+- dans fichier '.env' :
+    DB_DATABASE=ecole
+    DB_USERNAME=pierre
+    DB_PASSWORD=pierre
+
+- dans fichier 'config/database.php' on modifira les configs
+
+# migrate (table)
+$ php artisan migrate       (test pour voir si bien connecter a la bdd)
+
+creer un fichier de migration (sans executer (commiter))
+// $ php artisan list
+   $ php artisan make:migration create_students_table --create=students        // creation d'un fichier dans 'database/migration/2015_08_31....'
+
+
+Dans '2015_08_31.... .php' :
+    - remplir les champs (username, mail...)
+    - $ php artisan migrate
+
+
+# ///// creer 1 entity (class) /////
+    va faire toutes les requettes vers la table 'students'
+    - creer un modele :
+        $ php artisan make:model Student            // 'Student' meme nom que la table mais sans 's'
+            -> fichier 'Student.php' generer dans App/
+
+
+# CREER DES CHAMPS DANS NOYRE TABLE - VIA TINKER (editer du php en ligne de commande) :
+    - $ php artisan tinker
+    - $ App\Student::all();
+    - dans 'Student.php' :
+        protected $fillable = [
+            'username',
+            'mail',
+        ];
+    - $ App\Student::create(['username' => 'xxx', 'mail' => 'xxx@gmail.com']);
+    - $ App\Student::create(['username' => 'yyy', 'mail' => 'yyy@gmail.com']);
+    - $ App\Student::create(['username' => 'xxx', 'mail' => 'xxx@gmail.com', 'age' => 22]);
+
+    - $ App\Student::all();         // affiche tous
+
+
+# CREER DES CHAMPS DANS NOYRE TABLE - VIA CONTROLLER :
+    public function show() {
+        return Student::all();
+    }
+
+
+# /////////////// RECAP : ///////////////
+- $ php artisan make:migration create_tags_table --create=tags                          // creation de la table + fichier '2015_08_31.... .php'
+- Dans '2015_08_31.... .php' : remplir les champs (username, mail...)                   // on defini les colonnes de notre table
+- $ php artisan migrate                                                                 // envoyer les colonnes de notre table
+- $ php artisan make:model Tag              (sans 's')                                  // creation d'un entity (ajouer $fillable dedans)
+- creer des champs dans notre table (tinker)                                            // on ajoute des champs dans notre table
+    -> $ php artisan tinker
+    -> $ App\Tag::create(['tag1' => 'a', 'tag2' => 'b']);
+
+
+
+
+
+
+
+
