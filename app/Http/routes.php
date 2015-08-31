@@ -14,3 +14,11 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::get('/student/{id}', function ($id) {
+//     return "Hello $id";
+// });
+
+Route::get('/student/{id}', 'StudentController@showStudent');
+Route::get('/student', 'StudentController@show');
+Route::get('/tags', 'StudentController@tag');
